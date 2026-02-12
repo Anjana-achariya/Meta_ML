@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Meta ML Recommender</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #e9eef3;
+            display: flex;
+            justify-content: center;
+            padding-top: 60px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            width: 500px;
+            border-radius: 12px;
+            box-shadow: 0px 8px 20px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .upload-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #2d6cdf;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1b4fbf;
+        }
+
+        .result {
+            margin-top: 20px;
+        }
+
+        .model-box {
+            background: #f4f6f9;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        canvas {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>Meta ML Recommender</h1>
+
+    <div class="upload-row">
+        <input type="file" id="fileInput">
+        <button onclick="analyze()">Analyze</button>
+    </div>
+
+    <div class="result" id="results"></div>
+
+    <canvas id="chart"></canvas>
+</div>
+
+<script>
+async function analyze() {
+    const fileInput = document.getElementById("fileInput");
+    const file = fileInput.files[0];
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("/recommend", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await response.json();
+    displayResults(data.recommended_models);
+}
+
+function displayResults(models) {
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.innerHTML = "";
+
+    const modelNames = [];
+    const accuracies = [];
+    const times = [];
+
+    models.forEach(model => {
+        resultsDiv.innerHTML += `
+            <div class="model-box">
+                <strong>${model.rank}. ${model.model}</strong><br>
+                Accuracy: ${model.predicted_accuracy}<br>
+                Time: ${model.predicted_training_time}s<br>
+                Confidence: ${model.confidence_score}<br>
+                <em>${model.reason}</em>
+            </div>
+        `;
+
+        modelNames.push(model.model);
+        accuracies.push(model.predicted_accuracy);
+        times.push(model.predicted_training_time);
+    });
+
+    new Chart(document.getElementById("chart"), {
+        type: "bar",
+        data: {
+            labels: modelNames,
+            datasets: [
+                {
+                    label: "Predicted Accuracy",
+                    data: accuracies,
+                    backgroundColor: "green"
+                },
+                {
+                    label: "Training Time",
+                    data: times,
+                    backgroundColor: "orange"
+                }
+            ]
+        }
+    });
+}
+</script>
+
+</body>
+</html>

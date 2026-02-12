@@ -1,0 +1,16 @@
+.myvenv/
+venv/
+env/
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+app/uploads/
+uploads/
+*.log
+.ipynb_checkpoints/
+data/openml_raw/
+data/performance_labels.csv
+data/meta_training_data.csv
+data/meta_features.csv
+*.tar
