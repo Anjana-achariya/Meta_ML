@@ -7,3 +7,4 @@ joblib
 scipy
 python-multipart
 openpyxl
+gradio
